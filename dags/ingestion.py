@@ -6,6 +6,7 @@ import requests
 import re
 import logging
 import json
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -14,6 +15,7 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
+
 log_counts_dataset = Dataset("log_counts")
 
 def fetch_log_file():
@@ -27,7 +29,7 @@ def clean_log_file(**context):
     
     # Remove blank lines and lines with only integers
     lines = [line for line in log_content.split('\n') 
-            if line.strip() and not re.match(r'^\s*\d+\s*$', line)]
+             if line.strip() and not re.match(r'^\s*\d+\s*$', line)]
     
     # Remove meaningless ":......" patterns
     cleaned_lines = []
@@ -82,7 +84,8 @@ def store_log_counts(**context):
     logging.info(f"Saved cleaned log to: {filename}")
     
     return dataset_content
-  with DAG(
+
+with DAG(
     'process_logs',
     default_args=default_args,
     description='A DAG to process and analyze log files',
@@ -112,4 +115,4 @@ def store_log_counts(**context):
         outlets=[log_counts_dataset],
     )
 
-    fetch_task >> clean_task >> count_task >> store_task 
+    fetch_task >> clean_task >> count_task >> store_task
